@@ -1,10 +1,10 @@
 import { execFileSync } from 'node:child_process';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
+import { isDeepStrictEqual } from 'node:util';
 import semver from 'semver';
 
 const RELEASE_TRIGGER_ROOT_FILES = new Set([
-  'package.json',
   'tsconfig.json',
   'backend/package.json',
   'backend/tsconfig.json',
@@ -64,12 +64,30 @@ export function validateRelease(baseVersion, currentVersion, changelog) {
   assertChangelogContainsVersion(changelog, currentVersion);
 }
 
-export function requiresRelease(changedFiles) {
+export function hasReleaseRelevantPackageChanges(basePackageJson, currentPackageJson) {
+  const baseReleaseMetadata = Object.fromEntries(
+    Object.entries(basePackageJson).filter(([field]) => field !== 'devDependencies'),
+  );
+  const currentReleaseMetadata = Object.fromEntries(
+    Object.entries(currentPackageJson).filter(([field]) => field !== 'devDependencies'),
+  );
+
+  return !isDeepStrictEqual(baseReleaseMetadata, currentReleaseMetadata);
+}
+
+export function requiresRelease(changedFiles, basePackageJson, currentPackageJson) {
   return changedFiles.some(
-    (file) =>
-      RELEASE_TRIGGER_ROOT_FILES.has(file) ||
-      file.startsWith('backend/src/') ||
-      file.startsWith('extension/'),
+    (file) => {
+      if (file === 'package.json') {
+        return hasReleaseRelevantPackageChanges(basePackageJson, currentPackageJson);
+      }
+
+      return (
+        RELEASE_TRIGGER_ROOT_FILES.has(file) ||
+        file.startsWith('backend/src/') ||
+        file.startsWith('extension/')
+      );
+    },
   );
 }
 
@@ -98,17 +116,21 @@ export function validateTaggedRelease({
   assertReleaseNotesPresent(releaseNotes);
 }
 
-function readPackageVersion(ref) {
+function readPackageJson(ref) {
   try {
     const packageJson = execFileSync('git', ['show', `${ref}:package.json`], {
       encoding: 'utf8',
       stdio: ['ignore', 'pipe', 'pipe'],
     });
 
-    return JSON.parse(packageJson).version;
+    return JSON.parse(packageJson);
   } catch {
     return null;
   }
+}
+
+function readPackageVersion(ref) {
+  return readPackageJson(ref)?.version ?? null;
 }
 
 function readChangedFiles(baseRef) {
@@ -123,6 +145,7 @@ function readChangedFiles(baseRef) {
 export function runReleaseGate({
   baseRef,
   readBasePackageVersion = readPackageVersion,
+  readBasePackageJson = readPackageJson,
   readDiffFiles = readChangedFiles,
   readCurrentPackageJson = () => JSON.parse(readFileSync('package.json', 'utf8')),
   readChangelog = () => readFileSync('CHANGELOG.md', 'utf8'),
@@ -135,17 +158,23 @@ export function runReleaseGate({
     return;
   }
 
-  if (!requiresRelease(readDiffFiles(baseRef))) {
-    return;
-  }
-
   const baseVersion = readBasePackageVersion(baseRef);
 
   if (!baseVersion) {
     return;
   }
 
-  validateRelease(baseVersion, readCurrentPackageJson().version, readChangelog());
+  const currentPackageJson = readCurrentPackageJson();
+
+  if (!requiresRelease(
+    readDiffFiles(baseRef),
+    readBasePackageJson(baseRef),
+    currentPackageJson,
+  )) {
+    return;
+  }
+
+  validateRelease(baseVersion, currentPackageJson.version, readChangelog());
 }
 
 function runExtractReleaseNotes(version) {
