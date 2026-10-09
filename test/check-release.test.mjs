@@ -4,6 +4,7 @@ import {
   assertTagMatchesPackageVersion,
   extractChangelogNotes,
   requiresRelease,
+  runReleaseGate,
   validateRelease,
 } from '../scripts/check-release.mjs';
 
@@ -32,5 +33,15 @@ describe('check-release', () => {
     expect(() => assertTagMatchesPackageVersion('v1.0.0', '1.0.1')).toThrow(
       'does not match',
     );
+  });
+
+  it('skips the gate when the base branch has no package manifest', () => {
+    expect(() => runReleaseGate({
+      baseRef: 'origin/main',
+      readBasePackageVersion: () => null,
+      readChangelog: () => changelog,
+      readCurrentPackageJson: () => ({ version: '1.0.1' }),
+      readDiffFiles: () => ['package.json'],
+    })).not.toThrow();
   });
 });

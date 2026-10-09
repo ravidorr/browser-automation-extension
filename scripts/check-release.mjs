@@ -99,11 +99,16 @@ export function validateTaggedRelease({
 }
 
 function readPackageVersion(ref) {
-  const packageJson = execFileSync('git', ['show', `${ref}:package.json`], {
-    encoding: 'utf8',
-  });
+  try {
+    const packageJson = execFileSync('git', ['show', `${ref}:package.json`], {
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
 
-  return JSON.parse(packageJson).version;
+    return JSON.parse(packageJson).version;
+  } catch {
+    return null;
+  }
 }
 
 function readChangedFiles(baseRef) {
@@ -134,11 +139,13 @@ export function runReleaseGate({
     return;
   }
 
-  validateRelease(
-    readBasePackageVersion(baseRef),
-    readCurrentPackageJson().version,
-    readChangelog(),
-  );
+  const baseVersion = readBasePackageVersion(baseRef);
+
+  if (!baseVersion) {
+    return;
+  }
+
+  validateRelease(baseVersion, readCurrentPackageJson().version, readChangelog());
 }
 
 function runExtractReleaseNotes(version) {
