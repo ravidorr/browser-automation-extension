@@ -34,6 +34,22 @@ function runReleaseGateForPackageChange(currentPackageJson) {
   });
 }
 
+function runReleaseGateForBackendPackageChange(
+  baseBackendPackageJson,
+  currentBackendPackageJson,
+) {
+  return () => runReleaseGate({
+    baseRef: 'origin/main',
+    readBasePackageVersion: () => '1.0.1',
+    readBasePackageJson: (packagePath) =>
+      packagePath === 'backend/package.json' ? baseBackendPackageJson : basePackageJson,
+    readDiffFiles: () => ['backend/package.json'],
+    readCurrentPackageJson: (packagePath) =>
+      packagePath === 'backend/package.json' ? currentBackendPackageJson : basePackageJson,
+    readChangelog: () => changelog,
+  });
+}
+
 describe('check-release', () => {
   it('requires a release for application source changes', () => {
     expect(requiresRelease(['backend/src/index.ts'])).toBe(true);
@@ -58,6 +74,50 @@ describe('check-release', () => {
     expect(requiresRelease(['package.json'], basePackageJson, devDependencyOnlyChange)).toBe(false);
     expect(requiresRelease(['package.json'], basePackageJson, runtimeDependencyChange)).toBe(true);
     expect(requiresRelease(['package.json'], basePackageJson, metadataChange)).toBe(true);
+  });
+
+  it('does not require a release for backend dev-dependency-only manifest changes', () => {
+    const baseBackendPackageJson = {
+      name: 'backend',
+      version: '1.0.0',
+      devDependencies: { typescript: '^6.0.3' },
+    };
+    const currentBackendPackageJson = {
+      ...baseBackendPackageJson,
+      devDependencies: { typescript: '^6.1.0' },
+    };
+
+    expect(requiresRelease(
+      ['backend/package.json'],
+      { 'backend/package.json': baseBackendPackageJson },
+      { 'backend/package.json': currentBackendPackageJson },
+    )).toBe(false);
+    expect(runReleaseGateForBackendPackageChange(
+      baseBackendPackageJson,
+      currentBackendPackageJson,
+    )).not.toThrow();
+  });
+
+  it('requires a release for backend runtime dependency changes', () => {
+    const baseBackendPackageJson = {
+      name: 'backend',
+      version: '1.0.0',
+      devDependencies: { typescript: '^6.0.3' },
+    };
+    const currentBackendPackageJson = {
+      ...baseBackendPackageJson,
+      dependencies: { express: '^5.0.0' },
+    };
+
+    expect(requiresRelease(
+      ['backend/package.json'],
+      { 'backend/package.json': baseBackendPackageJson },
+      { 'backend/package.json': currentBackendPackageJson },
+    )).toBe(true);
+    expect(runReleaseGateForBackendPackageChange(
+      baseBackendPackageJson,
+      currentBackendPackageJson,
+    )).toThrow('package version must change');
   });
 
   it('skips validation for dev-dependency-only package changes', () => {
