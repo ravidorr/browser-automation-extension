@@ -1,3 +1,4 @@
+import { randomBytes } from 'node:crypto';
 import type { Action, NavigationState, NavigationStep, Rating, Session, SessionTrace, Step } from './types';
 
 // In-memory storage maps (MVP)
@@ -85,7 +86,7 @@ export class Storage {
 
   // Utility
   private static generateId(): string {
-    return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+    return randomBytes(16).toString('hex');
   }
 
   // Navigation state management
