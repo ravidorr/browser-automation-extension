@@ -1,0 +1,10 @@
+packages:
+  - 'backend'
+  - 'extension'
+
+allowBuilds:
+  esbuild: true
+
+overrides:
+  fast-uri: 3.1.7
+  proxy-addr: 2.0.8

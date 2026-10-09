@@ -1,0 +1,14 @@
+{
+  "*.{js,mjs,cjs,ts}": [
+    "eslint --max-warnings=0"
+  ],
+  "*.css": [
+    "stylelint --allow-empty-input --max-warnings=0"
+  ],
+  "*.html": [
+    "node scripts/lint-html.mjs"
+  ],
+  "*.md": [
+    "markdownlint-cli2"
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": ["plan", "actions"],
+  "properties": {
+    "plan": {"type": "string", "minLength": 1, "maxLength": 200},
+    "elementScores": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["elementId", "score", "reason"],
+        "properties": {
+          "elementId": {"type": "string"},
+          "score": {"type": "number", "minimum": 0, "maximum": 100},
+          "reason": {"type": "string", "maxLength": 200}
+        },
+        "additionalProperties": false
+      }
+    },
+    "actions": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["op"],
+        "properties": {
+          "op": {"type": "string", "enum": ["NAVIGATE","CLICK","TYPE","SELECT","SCROLL","WAIT","EXTRACT","FINISH"]},
+          "locator": {
+            "type": ["object","null"],
+            "required": ["strategy","value"],
+            "properties": {
+              "strategy": {"type": "string", "enum": ["role","text","aria","dataTestId","css","xpath","elementId"]},
+              "value": {"type": "string"},
+              "alternates": {"type": "array", "items": {"type": "object", "required": ["strategy","value"], "properties": {"strategy": {"type": "string"}, "value": {"type": "string"}}}, "maxItems": 3}
+            }
+          },
+          "input": {"type": ["object","null"]},
+          "expect": {"type": ["object","null"], "properties": {"event": {"type":"string", "enum": ["navigation","domChange","networkIdle"]}, "timeoutMs": {"type": "integer", "minimum": 0, "maximum": 15000}}},
+          "notes": {"type": ["string","null"], "maxLength": 200},
+          "confidence": {"type": ["number","null"], "minimum": 0, "maximum": 1}
+        },
+        "additionalProperties": false
+      }
+    },
+    "finish": {
+      "type": ["object","null"],
+      "properties": {
+        "reason": {"type": "string", "enum": ["SUCCESS","CONSECUTIVE_FAILURES","FILE_PICKER_REACHED","NEW_TAB_BLOCKED","USER_ABORTED","STUCK_LOOP"]},
+        "user_prompt": {"type": "string", "maxLength": 120},
+        "evidence": {"type": "array", "items": {"type": "string"}, "maxItems": 5}
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

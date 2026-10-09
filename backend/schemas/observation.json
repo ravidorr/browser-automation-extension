@@ -1,0 +1,31 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": ["url","viewport","elements","events","network","errors"],
+  "properties": {
+    "url": {"type":"string"},
+    "viewport": {"type":"object","required":["w","h"],"properties":{"w":{"type":"integer"},"h":{"type":"integer"}}},
+    "screenshot": {"type":["string","null"]},
+    "elements": {"type":"array","items":{"type":"object","required":["id","bbox","visible"],"properties":{
+      "id":{"type":"string"},
+      "role":{"type":["string","null"]},
+      "text":{"type":["string","null"], "maxLength": 120},
+      "ariaLabel":{"type":["string","null"]},
+      "dataTestId":{"type":["string","null"]},
+      "idAttr":{"type":["string","null"]},
+      "classes":{"type":["array","null"],"items":{"type":"string"}, "maxItems": 3},
+      "hrefHost":{"type":["string","null"]},
+      "inputType":{"type":["string","null"]},
+      "disabled":{"type":["boolean","null"]},
+      "hidden":{"type":["boolean","null"]},
+      "bbox":{"type":"array","items":{"type":"number"},"minItems":4,"maxItems":4},
+      "visible":{"type":"boolean"}
+    }}},
+    "events": {"type":"array","items":{"type":"object","properties":{"type":{"type":"string","enum":["route","dom","network"]},"to":{"type":["string","null"]}}}},
+    "network": {"type":"object","required":["inflight"],"properties":{"inflight":{"type":"integer","minimum":0}}},
+    "errors": {"type":"array","items":{"type":"string"}},
+    "stateSig": {"type":["string","null"]},
+    "replanCount": {"type":["integer","null"]}
+  },
+  "additionalProperties": false
+}

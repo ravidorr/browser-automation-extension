@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Browser Automation</title>
+  <style>
+    body {
+      width: 300px;
+      padding: 20px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+    .title {
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 15px;
+      color: #333;
+    }
+    .status {
+      padding: 10px;
+      border-radius: 4px;
+      margin-bottom: 15px;
+      font-size: 14px;
+    }
+    .status.running {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+    .status.stopped {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+    button {
+      width: 100%;
+      padding: 10px;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    button:disabled {
+      background: #6c757d;
+      cursor: not-allowed;
+    }
+    .goal-input {
+      margin-bottom: 15px;
+    }
+    .goal-input label {
+      display: block;
+      margin-bottom: 5px;
+      font-size: 14px;
+      font-weight: 500;
+      color: #333;
+    }
+    .goal-input textarea {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 14px;
+      font-family: inherit;
+      resize: vertical;
+      min-height: 60px;
+      box-sizing: border-box;
+    }
+    .goal-input textarea:focus {
+      outline: none;
+      border-color: #007bff;
+      box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+    }
+    .goal-input textarea::placeholder {
+      color: #999;
+    }
+    .version {
+      color: #666;
+      font-size: 12px;
+      font-weight: normal;
+    }
+  </style>
+</head>
+<body>
+  <div class="title">Browser Automation <span id="version" class="version">v1.0.7</span></div>
+
+  <div id="status" class="status stopped">
+    Status: Stopped
+  </div>
+
+  <div class="goal-input">
+    <label for="goalInput">What would you like me to do?</label>
+    <textarea
+      id="goalInput"
+      placeholder="e.g., Search for flights from London to Paris, Fill out the contact form, Find the pricing page..."
+      rows="3"
+    ></textarea>
+  </div>
+
+  <button id="startBtn" type="button">Start Automation</button>
+
+  <script src="popup.js"></script>
+</body>
+</html>

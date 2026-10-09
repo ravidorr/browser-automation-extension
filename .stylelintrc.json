@@ -1,0 +1,9 @@
+{
+  "extends": ["stylelint-config-standard"],
+  "ignoreFiles": [
+    "backend/dist/**",
+    "coverage/**",
+    "node_modules/**",
+    "storybook-static/**"
+  ]
+}
