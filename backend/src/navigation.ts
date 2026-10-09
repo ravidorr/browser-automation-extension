@@ -1,8 +1,9 @@
-import { ElementEntry, ElementScore, Action, NavigationState } from './types';
+import type { Action, ElementEntry, ElementScore, Locator } from './types';
 import { Storage } from './storage';
 
 export class NavigationManager {
   private static readonly MIN_SCORE_THRESHOLD = 30;
+  readonly isNavigationManager = true;
 
   /**
    * Score all elements based on user intent
@@ -11,11 +12,11 @@ export class NavigationManager {
     const scores: ElementScore[] = [];
 
     for (const element of elements) {
-      const score = this.calculateElementScore(element, intent);
+      const score = this.calculateElementScore(element);
       scores.push({
         elementId: element.id,
         score,
-        reason: this.getScoreReason(element, score, intent)
+        reason: this.getScoreReason(score)
       });
       
 
@@ -26,11 +27,14 @@ export class NavigationManager {
     
     // Log top scoring elements for debugging
     if (sortedScores.length > 0) {
-      console.log('Top scoring elements:', sortedScores.slice(0, 5).map(score => ({
-        elementId: score.elementId,
-        score: score.score,
-        reason: score.reason
-      })));
+      console.warn('Top scoring elements:', {
+        intent,
+        scores: sortedScores.slice(0, 5).map(score => ({
+          elementId: score.elementId,
+          score: score.score,
+          reason: score.reason
+        }))
+      });
     }
     
     return sortedScores;
@@ -39,7 +43,7 @@ export class NavigationManager {
   /**
    * Calculate score for a single element (0-100)
    */
-  private static calculateElementScore(element: ElementEntry, intent: string): number {
+  private static calculateElementScore(element: ElementEntry): number {
     let score = 0;
 
     // Base score for interactive elements
@@ -60,7 +64,7 @@ export class NavigationManager {
   /**
    * Get human-readable reason for score
    */
-  private static getScoreReason(element: ElementEntry, score: number, intent: string): string {
+  private static getScoreReason(score: number): string {
     if (score === 0) return 'Element is not relevant to the task';
     if (score >= 80) return 'Element is highly relevant and likely leads to destination';
     if (score >= 50) return 'Element is relevant and may help with the task';
@@ -102,7 +106,7 @@ export class NavigationManager {
     return {
       op: 'CLICK',
       locator,
-      notes: `Selected element with score ${score.score}: ${score.reason}`,
+      notes: `Selected element with score ${String(score.score)}: ${score.reason}`,
       confidence: score.score / 100
     };
   }
@@ -110,10 +114,14 @@ export class NavigationManager {
   /**
    * Create locator from element
    */
-  private static createLocatorFromElement(element: ElementEntry): any {
+  private static createLocatorFromElement(element: ElementEntry): Locator {
     // Try CSS classes first (most reliable for styled components)
     if (element.classes && element.classes.length > 0) {
-      const cssClass = element.classes[0]; // Use first class
+      const [cssClass] = element.classes;
+      if (!cssClass) {
+        return this.createLocatorFromElement({ ...element, classes: null });
+      }
+
       return {
         strategy: 'css',
         value: `.${cssClass}`,
@@ -158,7 +166,7 @@ export class NavigationManager {
     }
 
     // Last resort: text-based locator (least reliable)
-    if (element.text && element.text.trim()) {
+    if (element.text?.trim()) {
       return {
         strategy: 'text',
         value: element.text.trim(),
@@ -179,7 +187,7 @@ export class NavigationManager {
    */
   static shouldBacktrack(sessionId: string, elementScores: ElementScore[]): boolean {
     const navigationState = Storage.getNavigationState(sessionId);
-    if (!navigationState || !navigationState.backtrackingEnabled) {
+    if (!navigationState?.backtrackingEnabled) {
       return false;
     }
 
@@ -215,7 +223,7 @@ export class NavigationManager {
             value: score.elementId,
             alternates: []
           },
-          notes: `Backtracking: trying next best element with score ${score.score}`,
+          notes: `Backtracking: trying next best element with score ${String(score.score)}`,
           confidence: score.score / 100
         };
       }

@@ -1,4 +1,6 @@
-export function renderPrompt(observation: any, intent: string): string {
+import type { Observation } from './types';
+
+export function renderPrompt(observation: Observation, intent: string): string {
   return `[SYSTEM]
 You are a browser automation policy running in a tight loop. Output **only** valid JSON that conforms to the Decision schema. Use the fewest safe steps. Prefer role/text/aria/dataTestId locators; avoid xpath unless last resort. Do not request confirmations or add safety gates; do not emit ASSERTs. Proceed to completion.
 
@@ -38,15 +40,15 @@ TopKElements(JSON):
 ${JSON.stringify(observation.elements.slice(0, 60), null, 2)}
 
 **RELEVANT ELEMENTS ANALYSIS:**
-${observation.elements.slice(0, 20).map((el: any, i: number) => 
-  `${i + 1}. ${el.text || el.ariaLabel || el.role || 'No text'} (${el.role || 'no-role'}) - Score: ${el.score || 'N/A'}`
+${observation.elements.slice(0, 20).map((element, index) =>
+  `${String(index + 1)}. ${element.text ?? element.ariaLabel ?? element.role ?? 'No text'} (${element.role ?? 'no-role'}) - Score: ${String(element.score ?? 'N/A')}`
 ).join('\n')}
 RecentEvents(JSON):
 ${JSON.stringify(observation.events, null, 2)}
 Network: ${JSON.stringify(observation.network)}
 Errors: ${JSON.stringify(observation.errors)}
-StateSignature: ${observation.stateSig || 'null'}
-ReplanCount: ${observation.errors?.find((e: string) => e.includes('replan count'))?.match(/\d+/) || 0}
+StateSignature: ${observation.stateSig ?? 'null'}
+ReplanCount: ${observation.errors.find(error => error.includes('replan count'))?.match(/\d+/)?.[0] ?? '0'}
 
 
 [INSTRUCTIONS]

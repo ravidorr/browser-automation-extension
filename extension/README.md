@@ -36,6 +36,7 @@ A Chrome extension that provides AI-powered browser automation using LLM decisio
 ### Prerequisites
 
 Make sure the backend server is running:
+
 ```bash
 # From the project root
 pnpm dev:backend
@@ -73,7 +74,7 @@ The extension follows this loop:
 
 ### File Structure
 
-```
+```text
 extension/
 ├─ manifest.json        # Extension configuration
 ├─ bg.js               # Background service worker
@@ -92,6 +93,7 @@ extension/
 ### Backend Integration
 
 The extension communicates with the backend API:
+
 - `POST /v1/sessions` - Create new automation session
 - `POST /v1/steps/observe` - Send page observations
 - `POST /v1/steps/decide` - Get AI decisions
@@ -101,21 +103,25 @@ The extension communicates with the backend API:
 ## Troubleshooting
 
 ### Extension Not Loading
+
 - Ensure Developer mode is enabled
 - Check that all files are present in the extension folder
 - Look for errors in the Extensions page
 
 ### Backend Connection Issues
+
 - Verify backend is running on `http://localhost:3000`
 - Check browser console for network errors
 - Ensure CORS is properly configured
 
 ### Automation Not Working
+
 - Check browser console for JavaScript errors
 - Verify the page allows content scripts
 - Look for network idle detection issues
 
 ### Debugging
+
 - Open Chrome DevTools
 - Check Console tab for extension logs
 - Use the Extensions page to inspect background service worker

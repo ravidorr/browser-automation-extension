@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
 // Simple smoke test validation script
-const fs = require('fs');
-const yaml = require('js-yaml');
+import fs from 'node:fs';
+import yaml from 'js-yaml';
 
 try {
   // Read smoke.yaml

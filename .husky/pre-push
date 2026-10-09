@@ -1,0 +1,14 @@
+#!/usr/bin/env sh
+# Never push directly to main: use a branch and a draft PR.
+while read -r _local_ref _local_sha remote_ref _remote_sha; do
+  if [ "$remote_ref" = "refs/heads/main" ]; then
+    echo "pre-push: pushing directly to main is not allowed. Push a branch and open a draft PR." >&2
+    exit 1
+  fi
+done
+
+# Branch-wide checks. CI re-enforces all of these.
+pnpm run lint
+pnpm run typecheck
+pnpm run test:coverage
+BASE_REF=origin/main node scripts/check-release.mjs

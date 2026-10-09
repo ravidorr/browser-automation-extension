@@ -1,0 +1,16 @@
+:root {
+  --color-surface: #fff;
+  --color-surface-inverse: #1f2937;
+  --color-text: #111827;
+  --color-text-inverse: #fff;
+  --color-accent: #2563eb;
+  --color-border: #d1d5db;
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --font-size-body: 0.875rem;
+  --font-size-heading: 1.25rem;
+}

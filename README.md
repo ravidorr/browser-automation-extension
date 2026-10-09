@@ -4,13 +4,13 @@ A monorepo containing a browser automation extension with a backend service.
 
 ## Prerequisites
 
-- Node.js 20 or higher
-- pnpm 8 or higher
-- OpenAI API key (get one at https://platform.openai.com/api-keys)
+- Node.js 24.21.0
+- pnpm 11.18.0
+- OpenAI API key, available from the [OpenAI API keys page](https://platform.openai.com/api-keys)
 
 ## Project Structure
 
-```
+```text
 .
 ├─ backend/          # Backend service
 ├─ extension/        # Browser extension
@@ -23,29 +23,33 @@ A monorepo containing a browser automation extension with a backend service.
 ## Quick Start
 
 1. **Install dependencies:**
+
    ```bash
    pnpm install
    ```
 
-2. **Configure OpenAI API:**
+1. **Configure OpenAI API:**
+
    ```bash
-   cd backend
-   cp env.example .env
-   # Edit .env and add your OpenAI API key
+   cp backend/env.example backend/.env
+   # Edit backend/.env and add your OpenAI API key
    ```
 
-3. **Start backend server:**
+1. **Start backend server:**
+
    ```bash
    pnpm dev:backend
    ```
 
-3. **Load the extension:**
+1. **Load the extension:**
+
    - Open Chrome and go to `chrome://extensions/`
    - Enable "Developer mode"
    - Click "Load unpacked" and select the `extension/` folder
    - The extension icon should appear in your toolbar
 
-4. **Test automation:**
+1. **Test automation:**
+
    - Navigate to any website
    - Click the extension icon to open the popup
    - Enter a goal like "Search for information about browser automation"
@@ -54,34 +58,39 @@ A monorepo containing a browser automation extension with a backend service.
 
 ## Features
 
-### 🎯 **Goal Input UI**
+### Goal Input UI
+
 - **User-friendly popup** with goal input field
 - **Goal persistence** - saves your last goal for convenience
 - **Input validation** - prevents empty goals from being submitted
 - **Keyboard shortcuts** - Ctrl+Enter to submit
 - **Real-time status** - shows when automation is running
 
-### 🤖 **AI-Powered Automation**
+### AI-Powered Automation
+
 - **OpenAI Integration** - Real AI decisions based on page content
 - **Context-aware** - Analyzes page elements and user intent
 - **Schema-compliant** - Structured JSON responses
 - **Error handling** - Graceful handling of API failures
 
-### 📊 **Event Tracking System**
+### Event Tracking System
+
 - **Route Changes** - Tracks SPA navigation and URL changes
 - **DOM Mutations** - Monitors element changes and page updates
 - **Network Activity** - Tracks requests, responses, and network idle
 - **Event Filtering** - Intelligent deduplication and significance filtering
 - **Real-time Logging** - Comprehensive event logging for debugging
 
-### ⚙️ **Configurable Event Tracking**
+### Configurable Event Tracking
+
 - **Multiple Profiles** - Sensitive, balanced, and conservative configurations
 - **Granular Thresholds** - Fine-tune timing for each event type
 - **Advanced Filtering** - Filter by URLs, elements, attributes, and more
 - **Performance Settings** - Sampling, burst limits, and size controls
 - **Runtime Configuration** - Change settings without reloading
 
-### 🔧 **Developer Tools**
+### Developer Tools
+
 - **Comprehensive testing** - Unit, integration, and smoke tests
 - **Real-time logging** - Detailed logs for debugging
 - **Extension packaging** - Easy deployment scripts
@@ -89,6 +98,7 @@ A monorepo containing a browser automation extension with a backend service.
 ## Development
 
 ### Backend
+
 - Located in `backend/`
 - Run with: `pnpm dev:backend`
 - Requires OpenAI API key (see `backend/env.example`)
@@ -96,6 +106,7 @@ A monorepo containing a browser automation extension with a backend service.
 - Trace viewer: `http://localhost:3000/trace.html`
 
 ### Extension
+
 - Located in `extension/`
 - Chrome MV3 extension with content script and background service worker
 - Load as unpacked extension in Chrome
@@ -106,7 +117,10 @@ A monorepo containing a browser automation extension with a backend service.
 - `dev` - Start backend in development mode (alias for dev:backend)
 - `dev:backend` - Start backend in development mode
 - `typecheck` - Run TypeScript type checking across all packages
-- `lint` - Run linting (currently skipped)
+- `lint` - Run ESLint, Stylelint, html-validate, and markdownlint
+- `test` - Run the automated test suite
+- `test:coverage` - Run tests with the mandatory 100% coverage gate
+- `build` - Build the backend and package the extension
 - `zip:extension` - Create extension.zip for distribution
 - `test:smoke` - Validate smoke test intents
 - `test:openai` - Test OpenAI integration
@@ -118,6 +132,7 @@ A monorepo containing a browser automation extension with a backend service.
 ## Testing
 
 ### Smoke Tests
+
 The `smoke.yaml` file contains 10 test intents from PRD Appendix G:
 
 1. **Search for information** - Find and use search functionality
@@ -132,6 +147,7 @@ The `smoke.yaml` file contains 10 test intents from PRD Appendix G:
 10. **Open external link** - External link handling (should finish with NEW_TAB_BLOCKED)
 
 ### Test Websites
+
 - Google Search: `https://www.google.com`
 - GitHub: `https://github.com`
 - Wikipedia: `https://en.wikipedia.org`
@@ -139,5 +155,27 @@ The `smoke.yaml` file contains 10 test intents from PRD Appendix G:
 ## Workspaces
 
 This project uses pnpm workspaces with two packages:
+
 - `backend` - Backend service with Express API
 - `extension` - Chrome MV3 extension
+
+## Quality and documentation
+
+Run the project quality gate before opening a pull request:
+
+```sh
+pnpm run lint
+pnpm run typecheck
+pnpm run test:coverage
+```
+
+- [Contributing](./CONTRIBUTING.md)
+- [Changelog](./CHANGELOG.md)
+- [Security](./SECURITY.md)
+- [Privacy](./PRIVACY.md)
+- [Support](./SUPPORT.md)
+- [Design system](./design-system/README.md)
+
+## License
+
+This project is licensed under the [MIT License](./LICENSE).

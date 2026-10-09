@@ -1,0 +1,18 @@
+# Browser Automation Extension
+
+> A Chrome Manifest V3 browser-automation extension with a Node.js backend that delegates navigation decisions to OpenAI.
+
+## Project documentation
+
+- [README](./README.md): setup, usage, architecture, and scripts.
+- [Agent guide](./AGENT.md): coding rules and quality commands.
+- [Contributing](./CONTRIBUTING.md): contribution workflow.
+- [Security](./SECURITY.md): vulnerability reporting.
+- [Privacy](./PRIVACY.md): data processing and permissions.
+- [Support](./SUPPORT.md): help channels.
+
+## Key directories
+
+- [Backend](./backend/): API and automation-decision service.
+- [Extension](./extension/): Chrome extension source.
+- [Design system](./design-system/README.md): UI tokens and component guidance.

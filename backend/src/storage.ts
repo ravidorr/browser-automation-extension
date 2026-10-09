@@ -1,4 +1,4 @@
-import { Session, Step, Rating, NavigationState, NavigationStep, ElementScore, Action } from './types';
+import type { Action, NavigationState, NavigationStep, Rating, Session, SessionTrace, Step } from './types';
 
 // In-memory storage maps (MVP)
 const sessions = new Map<string, Session>();
@@ -7,6 +7,8 @@ const ratings = new Map<string, Rating>();
 const navigationStates = new Map<string, NavigationState>();
 
 export class Storage {
+  readonly isStorage = true;
+
   // Session management
   static createSession(goal?: string): Session {
     const session: Session = {
@@ -34,7 +36,7 @@ export class Storage {
   }
 
   // Step management
-  static addStep(sessionId: string, type: 'observe' | 'decide' | 'execute', data: any): string {
+  static addStep(sessionId: string, type: 'observe' | 'decide' | 'execute', data: Step['data']): string {
     const newStep: Step = {
       id: this.generateId(),
       sessionId,
@@ -67,7 +69,7 @@ export class Storage {
     return ratings.get(sessionId);
   }
 
-  static getSessionTrace(sessionId: string) {
+  static getSessionTrace(sessionId: string): SessionTrace | null {
     const session = this.getSession(sessionId);
     if (!session) return null;
     
@@ -87,7 +89,7 @@ export class Storage {
   }
 
   // Navigation state management
-      static createNavigationState(sessionId: string, minScoreThreshold: number = 30): NavigationState {
+      static createNavigationState(sessionId: string, minScoreThreshold = 30): NavigationState {
     const navigationState: NavigationState = {
       sessionId,
       currentStepIndex: 0,
@@ -122,8 +124,8 @@ export class Storage {
       ...step,
       stepIndex: state.currentStepIndex,
       timestamp: new Date().toISOString(),
-      alternativeActions: step.alternativeActions || [],
-      triedActions: step.triedActions || []
+      alternativeActions: step.alternativeActions,
+      triedActions: step.triedActions
     };
 
     state.navigationHistory.push(navigationStep);
@@ -156,7 +158,7 @@ export class Storage {
     const triedKeys = new Set(step.triedActions);
     
     return step.alternativeActions.filter(action => {
-      const actionKey = `${action.op}-${action.locator?.value || 'none'}`;
+      const actionKey = `${action.op}-${action.locator?.value ?? 'none'}`;
       return !triedKeys.has(actionKey);
     });
   }
@@ -211,7 +213,7 @@ export class Storage {
     navigationStates.clear();
   }
 
-  static getStats() {
+  static getStats(): { sessions: number; steps: number; ratings: number } {
     return {
       sessions: sessions.size,
       steps: steps.size,
@@ -220,7 +222,13 @@ export class Storage {
   }
 
   // KPI calculation
-  static getKPI() {
+  static getKPI(): {
+    totalSessions: number;
+    upvotes: number;
+    downvotes: number;
+    successRate: number;
+    averageRating: number;
+  } {
     const allRatings = Array.from(ratings.values());
     const recentRatings = allRatings
       .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())

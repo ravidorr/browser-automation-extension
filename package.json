@@ -1,21 +1,33 @@
 {
   "name": "browser-automation-extension",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Browser automation extension with backend",
   "private": true,
+  "license": "MIT",
   "workspaces": [
     "backend",
     "extension"
   ],
   "engines": {
-    "node": ">=20.0.0",
-    "pnpm": ">=8.0.0"
+    "node": ">=24.21.0 <25",
+    "pnpm": ">=11.18.0"
   },
   "scripts": {
+    "prepare": "husky",
     "dev": "pnpm --filter backend dev",
     "dev:backend": "pnpm --filter backend dev",
-    "typecheck": "pnpm -r typecheck",
-    "lint": "echo skip",
+    "build": "pnpm --filter backend build && pnpm run zip:extension",
+    "typecheck": "tsc -b --pretty false && tsc -p test/tsconfig.json --noEmit",
+    "lint": "pnpm run lint:js && pnpm run lint:css && pnpm run lint:html && pnpm run lint:md",
+    "lint:js": "eslint --max-warnings=0 .",
+    "lint:css": "stylelint --allow-empty-input --max-warnings=0 \"**/*.css\"",
+    "lint:html": "node scripts/lint-html.mjs",
+    "lint:md": "markdownlint-cli2",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "check:generated": "node -e \"process.exit(0)\"",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build",
     "zip:extension": "cd extension && zip -r ../extension.zip *",
     "test:smoke": "node test-smoke.js",
     "test:openai": "node test-openai.js",
@@ -26,8 +38,26 @@
     "test:events-extended": "node test-events-extended.js"
   },
   "devDependencies": {
-    "typescript": "^5.3.0",
-    "js-yaml": "^4.1.0"
+    "@eslint/js": "10.0.1",
+    "@storybook/html-vite": "10.6.1",
+    "@types/supertest": "7.2.1",
+    "@vitest/coverage-v8": "5.0.3",
+    "chrome-types": "0.1.453",
+    "eslint": "10.12.0",
+    "globals": "17.13.0",
+    "html-validate": "11.16.2",
+    "husky": "9.1.7",
+    "js-yaml": "^4.1.0",
+    "lint-staged": "17.6.0",
+    "markdownlint-cli2": "0.23.3",
+    "semver": "7.8.5",
+    "storybook": "10.6.1",
+    "stylelint": "17.13.0",
+    "stylelint-config-standard": "40.0.0",
+    "supertest": "7.3.1",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.71.1",
+    "vitest": "5.0.3"
   },
   "packageManager": "pnpm@11.18.0+sha512.33d83c77da82f49fba836925c6f1b841181ec3132b670639bd012f7075f5c7cf634c5f870147c19aae7478fac01df09d8892e880454896edd23ee9b33757563c"
 }

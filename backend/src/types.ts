@@ -6,7 +6,7 @@ export type LocatorStrategy = 'role'|'text'|'aria'|'dataTestId'|'css'|'xpath';
 export interface Locator {
   strategy: LocatorStrategy;
   value: string;
-  alternates?: Array<{strategy: LocatorStrategy; value: string}>;
+  alternates?: {strategy: LocatorStrategy; value: string}[];
 }
 
 export interface Action {
@@ -46,6 +46,7 @@ export interface ElementEntry {
   hidden?: boolean | null;
   bbox: [number, number, number, number];
   visible: boolean;
+  score?: number | null;
 }
 
 export interface Observation {
@@ -53,7 +54,7 @@ export interface Observation {
   viewport: Viewport;
   screenshot?: string | null;
   elements: ElementEntry[];
-  events: Array<{type: 'route'|'dom'|'network'; to?: string | null }>;
+  events: {type: 'route'|'dom'|'network'; to?: string | null }[];
   network: { inflight: number };
   errors: string[];
   stateSig?: string | null;
@@ -80,7 +81,7 @@ export interface Step {
 export interface ExecutionResult {
   success: boolean;
   error?: string;
-  result?: any;
+  result?: unknown;
 }
 
 export interface Rating {

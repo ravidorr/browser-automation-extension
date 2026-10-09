@@ -2,8 +2,8 @@
 
 // Test script for OpenAI integration
 // Load environment variables from backend/.env
-const fs = require('fs');
-const path = require('path');
+import fs from 'node:fs';
+import path from 'node:path';
 
 // Load .env file manually
 const envPath = path.join(__dirname, 'backend', '.env');

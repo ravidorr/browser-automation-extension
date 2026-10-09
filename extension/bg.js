@@ -1,6 +1,14 @@
 // Background service worker for browser automation extension
 // PRD Appendix F.3 implementation
 
+function createBackgroundRuntime({
+  chrome = globalThis.chrome,
+  fetch = globalThis.fetch,
+  serviceWorkerGlobal = globalThis,
+  logger = globalThis.console
+} = {}) {
+const self = serviceWorkerGlobal;
+const console = logger;
 const BACKEND_URL = 'http://localhost:3000';
 let currentSessionId = null;
 let currentTabId = null;
@@ -35,7 +43,7 @@ function log(level, message, data = null) {
 log('info', 'Background service worker initialized', { backendUrl: BACKEND_URL });
 
 // Backtracking function
-async function attemptBacktracking(sessionId, tabId) {
+async function attemptBacktracking(sessionId, failedAction = null) {
   log('info', 'Attempting backtracking', { sessionId });
   
   try {
@@ -65,15 +73,17 @@ async function attemptBacktracking(sessionId, tabId) {
           untriedActions: untriedActions.length 
         });
         
-        // Mark the current failed action as tried
-        await fetch(`${BACKEND_URL}/v1/navigation/mark-tried/${sessionId}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ 
-            stepIndex: i,
-            actionKey: 'current-failed-action' // This will be updated with actual action key
-          })
-        });
+        if (failedAction) {
+          const actionKey = `${failedAction.op}-${failedAction.locator?.value || 'none'}`;
+          await fetch(`${BACKEND_URL}/v1/navigation/mark-tried/${sessionId}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              stepIndex: i,
+              actionKey
+            })
+          });
+        }
         
         return { 
           success: true, 
@@ -305,6 +315,7 @@ async function automationLoop(sessionId, tabId, goal) {
     
     // Execute each action in the decision, trying alternatives if one fails
     let actionSuccess = false;
+    let failedAction = null;
     
     for (let i = 0; i < decision.decision.actions.length && !actionSuccess; i++) {
       const action = decision.decision.actions[i];
@@ -357,6 +368,7 @@ async function automationLoop(sessionId, tabId, goal) {
           await new Promise(resolve => setTimeout(resolve, action.expect.timeoutMs || 1000));
         }
       } else {
+        failedAction = action;
         log('warn', 'Action failed, trying next alternative', { 
           actionIndex: i,
           op: action.op,
@@ -381,7 +393,7 @@ async function automationLoop(sessionId, tabId, goal) {
       });
       
       // Try to find a previous step with untried actions
-      const backtrackResult = await attemptBacktracking(sessionId, tabId);
+      const backtrackResult = await attemptBacktracking(sessionId, failedAction);
       
       if (backtrackResult.success) {
         log('info', 'Backtracking successful', { 
@@ -512,7 +524,7 @@ async function finishAutomation(reason) {
   
   if (currentSessionId) {
     // Prompt for rating
-    const rating = await promptRating();
+    const rating = await requestRating();
     if (rating) {
       await postRating(currentSessionId, rating.rating, rating.note);
     }
@@ -539,6 +551,58 @@ async function promptRating() {
   // In a full implementation, we would show a notification or use a different approach
   log('info', 'Skipping rating prompt in service worker');
   return null;
+}
+
+let requestRating = promptRating;
+let startAutomationForMessages = startAutomation;
+let captureScreenshotForMessages = captureScreenshotWithBoxes;
+
+function setPromptRatingForTesting(provider) {
+  requestRating = provider || promptRating;
+}
+
+function setStartAutomationForTesting(starter) {
+  startAutomationForMessages = starter || startAutomation;
+}
+
+function setCaptureScreenshotForTesting(capture) {
+  captureScreenshotForMessages = capture || captureScreenshotWithBoxes;
+}
+
+function setAutomationStateForTesting({ sessionId = null, tabId = null, running = false }) {
+  currentSessionId = sessionId;
+  currentTabId = tabId;
+  isRunning = running;
+}
+
+void setPromptRatingForTesting;
+void setStartAutomationForTesting;
+void setCaptureScreenshotForTesting;
+void setAutomationStateForTesting;
+
+const api = {
+  attemptBacktracking,
+  automationLoop,
+  captureScreenshotWithBoxes,
+  createSession,
+  finishAutomation,
+  getState: () => ({ currentSessionId, currentTabId, isRunning }),
+  log,
+  notifyPopupStatusChange,
+  postDecision,
+  postExecute,
+  postObservation,
+  postRating,
+  promptRating,
+  setAutomationStateForTesting,
+  setCaptureScreenshotForTesting,
+  setPromptRatingForTesting,
+  setStartAutomationForTesting,
+  startAutomation
+};
+
+if (!chrome) {
+  return api;
 }
 
 // Extension action click handler - now opens popup instead of direct automation
@@ -588,7 +652,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     }
     
     log('info', 'Starting automation from popup', { tabId, goal });
-    startAutomation(tabId, goal).then(() => {
+    startAutomationForMessages(tabId, goal).then(() => {
       log('info', 'Automation started successfully');
       sendResponse({ success: true });
     }).catch(error => {
@@ -609,7 +673,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       elementCount: message.elements?.length || 0 
     });
     
-    captureScreenshotWithBoxes(sender.tab.id, message.elements)
+    captureScreenshotForMessages(sender.tab.id, message.elements)
       .then(screenshot => {
         log('debug', 'Screenshot captured successfully', { 
           success: !!screenshot,
@@ -659,3 +723,9 @@ async function captureScreenshotWithBoxes(tabId, elements) {
 }
 
 log('info', 'Background service worker setup complete');
+
+return api;
+}
+
+globalThis.browserAutomationBackgroundRuntime = { createBackgroundRuntime };
+void createBackgroundRuntime();

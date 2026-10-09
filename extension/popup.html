@@ -1,7 +1,8 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="utf-8">
+  <title>Browser Automation</title>
   <style>
     body {
       width: 300px;
@@ -76,26 +77,31 @@
     .goal-input textarea::placeholder {
       color: #999;
     }
+    .version {
+      color: #666;
+      font-size: 12px;
+      font-weight: normal;
+    }
   </style>
 </head>
 <body>
-  <div class="title">Browser Automation <span id="version" style="font-size: 12px; color: #666; font-weight: normal;">v1.0.7</span></div>
-  
+  <div class="title">Browser Automation <span id="version" class="version">v1.0.7</span></div>
+
   <div id="status" class="status stopped">
     Status: Stopped
   </div>
-  
+
   <div class="goal-input">
     <label for="goalInput">What would you like me to do?</label>
-    <textarea 
-      id="goalInput" 
+    <textarea
+      id="goalInput"
       placeholder="e.g., Search for flights from London to Paris, Fill out the contact form, Find the pricing page..."
       rows="3"
     ></textarea>
   </div>
-  
-  <button id="startBtn">Start Automation</button>
-  
+
+  <button id="startBtn" type="button">Start Automation</button>
+
   <script src="popup.js"></script>
 </body>
 </html>

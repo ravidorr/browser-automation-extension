@@ -1,6 +1,6 @@
 // Test script for event tracking configuration system
-const fs = require('fs');
-const path = require('path');
+import fs from 'node:fs';
+import path from 'node:path';
 
 console.log('🧪 Testing Event Tracking Configuration System...\n');
 

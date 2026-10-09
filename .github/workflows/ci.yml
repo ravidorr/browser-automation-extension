@@ -1,0 +1,62 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: pnpm/action-setup@v6
+        with:
+          version: 11.18.0
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run lint
+      - run: pnpm run typecheck
+      - name: Tests with 100% coverage gate
+        run: pnpm run test:coverage
+      - name: Coverage report
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          CAN_COMMENT: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && github.actor != 'dependabot[bot]' }}
+        run: |
+          node scripts/coverage-summary.mjs > coverage-report.md
+          cat coverage-report.md >> "$GITHUB_STEP_SUMMARY"
+          if [ "$CAN_COMMENT" = "true" ]; then
+            gh pr comment "$PR_NUMBER" --body-file coverage-report.md --edit-last --create-if-none
+          fi
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: coverage
+          path: coverage
+      - run: pnpm run build
+      - name: Dependency audit (production, blocking)
+        run: pnpm audit --prod --audit-level=high
+      - name: Dependency audit (dev tooling, informational)
+        continue-on-error: true
+        run: pnpm audit --audit-level=high
+      - name: Version and changelog gate
+        if: github.actor != 'dependabot[bot]'
+        env:
+          BASE_REF: ${{ github.event_name == 'pull_request' && format('origin/{0}', github.base_ref) || github.event.before }}
+        run: node scripts/check-release.mjs
