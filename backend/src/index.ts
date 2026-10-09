@@ -31,6 +31,7 @@ export const errorHandler: express.ErrorRequestHandler = (error, req, res, next)
   }
 
   const errorMessage = getErrorMessage(error);
+  const requestBodyTooLarge = error instanceof Error && 'status' in error && error.status === 413;
 
   log('error', 'Unhandled error', {
     error: errorMessage,
@@ -38,8 +39,8 @@ export const errorHandler: express.ErrorRequestHandler = (error, req, res, next)
     method: req.method
   });
 
-  res.status(500).json({
-    error: 'Internal server error',
+  res.status(requestBodyTooLarge ? 413 : 500).json({
+    error: requestBodyTooLarge ? 'Request body is too large' : 'Internal server error',
     details: errorMessage
   });
 };
@@ -49,7 +50,7 @@ export function createApp(): express.Express {
 
   // Middleware
   app.use(cors());
-  app.use(express.json({ limit: '10mb' }));
+  app.use(express.json({ limit: '256kb' }));
   app.use(express.static('public'));
 
   log('info', 'Backend server starting', { port: PORT });
@@ -83,7 +84,6 @@ export function createApp(): express.Express {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-app.use(express.json({ limit: '256kb' }));
 app.use(express.urlencoded({ extended: true, limit: '256kb' }));
 
 // Create session

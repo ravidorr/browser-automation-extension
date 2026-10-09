@@ -118,6 +118,18 @@ describe('backend app', () => {
     expect(mocks.storage.createSession).toHaveBeenCalledWith('Buy a book');
   });
 
+  it('rejects oversized JSON bodies before reaching route handlers', async () => {
+    const response = await request(createTestApp()).post('/v1/sessions').send({
+      goal: 'a'.repeat(256 * 1024),
+    });
+
+    expect(response).toMatchObject({
+      status: 413,
+      body: { error: 'Request body is too large' },
+    });
+    expect(mocks.storage.createSession).not.toHaveBeenCalled();
+  });
+
   it('reports session storage failures, including non-Error failures', async () => {
     mocks.storage.createSession.mockImplementation(() => {
       throw createNonErrorValue();

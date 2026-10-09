@@ -2,6 +2,12 @@
 
 All notable changes to this project are documented here.
 
+## [1.0.3] - 2026-10-10
+
+### Security
+
+- Reject JSON request bodies larger than 256 KiB before validation.
+
 ## [1.0.2] - 2026-10-10
 
 ### Fixed
