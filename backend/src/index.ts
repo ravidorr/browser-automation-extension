@@ -83,6 +83,9 @@ export function createApp(): express.Express {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
+app.use(express.json({ limit: '256kb' }));
+app.use(express.urlencoded({ extended: true, limit: '256kb' }));
+
 // Create session
   app.post('/v1/sessions', (req, res) => {
   try {
