@@ -40,7 +40,7 @@
   "devDependencies": {
     "@eslint/js": "10.0.1",
     "@storybook/html-vite": "10.6.1",
-    "@types/node": "24.19.1",
+    "@types/node": "26.6.4",
     "@types/supertest": "7.2.1",
     "@vitest/coverage-v8": "5.0.3",
     "chrome-types": "0.1.453",
@@ -56,7 +56,7 @@
     "stylelint": "17.16.0",
     "stylelint-config-standard": "40.0.0",
     "supertest": "7.3.1",
-    "typescript": "6.0.3",
+    "typescript": "7.0.2",
     "typescript-eslint": "8.71.1",
     "vitest": "5.0.3"
   },
