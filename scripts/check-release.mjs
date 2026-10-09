@@ -6,9 +6,13 @@ import semver from 'semver';
 
 const RELEASE_TRIGGER_ROOT_FILES = new Set([
   'tsconfig.json',
-  'backend/package.json',
   'backend/tsconfig.json',
   'extension/manifest.json',
+]);
+
+const PACKAGE_MANIFEST_FILES = new Set([
+  'package.json',
+  'backend/package.json',
 ]);
 
 function compareSemver(left, right) {
@@ -75,11 +79,18 @@ export function hasReleaseRelevantPackageChanges(basePackageJson, currentPackage
   return !isDeepStrictEqual(baseReleaseMetadata, currentReleaseMetadata);
 }
 
+function getPackageManifest(packageManifests, packagePath) {
+  return packageManifests[packagePath] ?? packageManifests;
+}
+
 export function requiresRelease(changedFiles, basePackageJson, currentPackageJson) {
   return changedFiles.some(
     (file) => {
-      if (file === 'package.json') {
-        return hasReleaseRelevantPackageChanges(basePackageJson, currentPackageJson);
+      if (PACKAGE_MANIFEST_FILES.has(file)) {
+        return hasReleaseRelevantPackageChanges(
+          getPackageManifest(basePackageJson, file),
+          getPackageManifest(currentPackageJson, file),
+        );
       }
 
       return (
@@ -116,9 +127,9 @@ export function validateTaggedRelease({
   assertReleaseNotesPresent(releaseNotes);
 }
 
-function readPackageJson(ref) {
+function readPackageJson(ref, packagePath = 'package.json') {
   try {
-    const packageJson = execFileSync('git', ['show', `${ref}:package.json`], {
+    const packageJson = execFileSync('git', ['show', `${ref}:${packagePath}`], {
       encoding: 'utf8',
       stdio: ['ignore', 'pipe', 'pipe'],
     });
@@ -133,6 +144,12 @@ function readPackageVersion(ref) {
   return readPackageJson(ref)?.version ?? null;
 }
 
+function readPackageManifests(packagePaths, readPackageManifest) {
+  return Object.fromEntries(
+    packagePaths.map((packagePath) => [packagePath, readPackageManifest(packagePath)]),
+  );
+}
+
 function readChangedFiles(baseRef) {
   return execFileSync('git', ['diff', '--name-only', `${baseRef}...HEAD`], {
     encoding: 'utf8',
@@ -145,9 +162,9 @@ function readChangedFiles(baseRef) {
 export function runReleaseGate({
   baseRef,
   readBasePackageVersion = readPackageVersion,
-  readBasePackageJson = readPackageJson,
+  readBasePackageJson = (packagePath) => readPackageJson(baseRef, packagePath),
   readDiffFiles = readChangedFiles,
-  readCurrentPackageJson = () => JSON.parse(readFileSync('package.json', 'utf8')),
+  readCurrentPackageJson = (packagePath) => JSON.parse(readFileSync(packagePath, 'utf8')),
   readChangelog = () => readFileSync('CHANGELOG.md', 'utf8'),
 }) {
   if (!baseRef) {
@@ -164,17 +181,30 @@ export function runReleaseGate({
     return;
   }
 
-  const currentPackageJson = readCurrentPackageJson();
+  const changedFiles = readDiffFiles(baseRef);
+  const changedPackageFiles = changedFiles.filter((file) => PACKAGE_MANIFEST_FILES.has(file));
+  const basePackageJsons = readPackageManifests(
+    changedPackageFiles,
+    readBasePackageJson,
+  );
+  const currentPackageJsons = readPackageManifests(
+    changedPackageFiles,
+    readCurrentPackageJson,
+  );
 
   if (!requiresRelease(
-    readDiffFiles(baseRef),
-    readBasePackageJson(baseRef),
-    currentPackageJson,
+    changedFiles,
+    basePackageJsons,
+    currentPackageJsons,
   )) {
     return;
   }
 
-  validateRelease(baseVersion, currentPackageJson.version, readChangelog());
+  validateRelease(
+    baseVersion,
+    currentPackageJsons['package.json']?.version ?? readCurrentPackageJson('package.json').version,
+    readChangelog(),
+  );
 }
 
 function runExtractReleaseNotes(version) {
