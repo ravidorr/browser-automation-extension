@@ -1,0 +1,95 @@
+# Smoke Tests - PRD Appendix G
+# Test intents for browser automation extension
+
+smoke_tests:
+  - name: "Search for information"
+    intent: "Search for information about artificial intelligence"
+    expected_actions:
+      - "Find search input field"
+      - "Type search query"
+      - "Submit search"
+    
+  - name: "Fill out contact form"
+    intent: "Fill out the contact form with my name and email"
+    expected_actions:
+      - "Locate contact form"
+      - "Fill name field"
+      - "Fill email field"
+      - "Submit form"
+    
+  - name: "Navigate to specific page"
+    intent: "Go to the pricing page"
+    expected_actions:
+      - "Find pricing link"
+      - "Click navigation link"
+    
+  - name: "Download file"
+    intent: "Download the latest version of the software"
+    expected_actions:
+      - "Find download link"
+      - "Click download button"
+    
+  - name: "Add item to cart"
+    intent: "Add the blue shirt to my shopping cart"
+    expected_actions:
+      - "Find product"
+      - "Select size/color"
+      - "Click add to cart"
+    
+  - name: "Complete checkout"
+    intent: "Complete the checkout process with my payment information"
+    expected_actions:
+      - "Navigate to checkout"
+      - "Fill payment form"
+      - "Submit order"
+    
+  - name: "Subscribe to newsletter"
+    intent: "Subscribe to the newsletter with my email address"
+    expected_actions:
+      - "Find newsletter signup"
+      - "Enter email"
+      - "Submit subscription"
+    
+  - name: "Book appointment"
+    intent: "Book an appointment for next Tuesday at 2 PM"
+    expected_actions:
+      - "Find booking form"
+      - "Select date/time"
+      - "Submit booking"
+    
+  - name: "Upload file"
+    intent: "Upload my resume to the job application"
+    expected_actions:
+      - "Find file upload field"
+      - "Trigger file picker"
+      - "Should finish with FILE_PICKER_REACHED"
+    
+  - name: "Open external link"
+    intent: "Click the link to the external documentation"
+    expected_actions:
+      - "Find external link"
+      - "Should finish with NEW_TAB_BLOCKED"
+
+test_websites:
+  - name: "Google Search"
+    url: "https://www.google.com"
+    test_intent: "Search for information about browser automation"
+    
+  - name: "GitHub"
+    url: "https://github.com"
+    test_intent: "Search for repositories about AI"
+    
+  - name: "Wikipedia"
+    url: "https://en.wikipedia.org"
+    test_intent: "Search for information about machine learning"
+
+success_criteria:
+  - "Extension loads without errors"
+  - "Backend server responds to health check"
+  - "Session creation works"
+  - "Observation collection succeeds"
+  - "Decision generation returns valid schema"
+  - "Action execution completes"
+  - "Rating system functions"
+  - "Trace viewer displays data"
+  - "KPI endpoint returns metrics"
