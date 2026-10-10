@@ -23,11 +23,14 @@ The root pnpm overrides will pin the remaining vulnerable transitive
 dependencies to their patched versions:
 
 - `fast-uri` 3.1.8
-- `braces` 3.0.4
 - `picomatch` 2.3.2
 - `form-data` 4.0.6
 - `smol-toml` 1.9.0
 - `katex` 0.18.2
+
+The braces advisory cannot be fixed yet because its listed patched release,
+`braces` 3.0.4, is not published to npm. That finding will remain documented
+as awaiting the upstream release; the dependency remains development-only.
 
 The lockfile will be regenerated with the repository's pinned Node 24 runtime
 and pnpm 11.18.0. We will prefer updates to direct dependencies where they
@@ -42,5 +45,5 @@ the changelog.
 
 Verification will run linting, typechecking, coverage tests, the production and
 full dependency audits, and the project build. The expected result is no
-remaining findings in the installed dependency graph and no CodeQL detection
-of unbounded Ajv error collection.
+production findings, no CodeQL detection of unbounded Ajv error collection,
+and only the unavailable braces advisory in the full development audit.
