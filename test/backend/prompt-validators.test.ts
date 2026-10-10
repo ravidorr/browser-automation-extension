@@ -74,4 +74,13 @@ describe('schema validators', () => {
       actions: [{ op: 'CLICK', locator: { strategy: 'unknown', value: 'button' } }],
     })).toBe(false);
   });
+
+  it('stops validation after the first schema error', () => {
+    expect(validateObservation({
+      ...observation,
+      network: { inflight: -1 },
+      unexpected: true,
+    })).toBe(false);
+    expect(validateObservation.errors).toHaveLength(1);
+  });
 });

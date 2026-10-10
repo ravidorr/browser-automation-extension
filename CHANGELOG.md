@@ -2,6 +2,13 @@
 
 All notable changes to this project are documented here.
 
+## [1.0.5] - 2026-10-10
+
+### Security fixes
+
+- Stop schema validation after the first invalid field.
+- Replace obsolete development tooling and update vulnerable transitive dependencies.
+
 ## [1.0.4] - 2026-10-10
 
 ### Dependencies

@@ -1,6 +1,6 @@
 {
   "name": "browser-automation-extension",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Browser automation extension with backend",
   "private": true,
   "license": "MIT",

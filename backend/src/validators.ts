@@ -5,8 +5,8 @@ import * as path from 'path';
 import type { JSONSchemaType } from 'ajv';
 import type { Decision, Observation } from './types';
 
-// Create AJV instance with allErrors
-const ajv = new Ajv({ allErrors: true });
+// Stop validation at the first schema error to bound work for untrusted input.
+const ajv = new Ajv();
 addFormats(ajv);
 
 // Load schemas
