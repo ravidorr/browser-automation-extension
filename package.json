@@ -40,7 +40,7 @@
   "devDependencies": {
     "@eslint/js": "10.0.1",
     "@storybook/html-vite": "10.6.1",
-    "@types/node": "24.19.1",
+    "@types/node": "26.6.4",
     "@types/supertest": "7.2.1",
     "@vitest/coverage-v8": "5.0.3",
     "chrome-types": "0.1.453",
