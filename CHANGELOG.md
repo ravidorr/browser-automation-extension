@@ -2,6 +2,12 @@
 
 All notable changes to this project are documented here.
 
+## [1.0.4] - 2026-10-10
+
+### Dependencies
+
+- Upgrade dotenv to 18.0.6.
+
 ## [1.0.3] - 2026-10-10
 
 ### Security
