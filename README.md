@@ -9,6 +9,7 @@
 [![Node.js](https://img.shields.io/badge/Node.js-24-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
 [![ESLint](https://img.shields.io/badge/ESLint-10-4B32C3?logo=eslint&logoColor=white)](https://eslint.org/)
 [![Extension + backend](https://img.shields.io/badge/Stack-Extension%20%2B%20backend-4285F4?logo=googlechrome&logoColor=white)](https://github.com/ravidorr/browser-automation-extension)
+
 A monorepo containing a browser automation extension with a backend service.
 
 ## Prerequisites
