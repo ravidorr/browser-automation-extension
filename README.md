@@ -1,5 +1,15 @@
 # Browser Automation Extension
 
+[![CI](https://github.com/ravidorr/browser-automation-extension/actions/workflows/ci.yml/badge.svg)](https://github.com/ravidorr/browser-automation-extension/actions/workflows/ci.yml)
+[![Release validation](https://github.com/ravidorr/browser-automation-extension/actions/workflows/release.yml/badge.svg)](https://github.com/ravidorr/browser-automation-extension/actions/workflows/release.yml)
+
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/ravidorr/browser-automation-extension/pulls)
+[![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/ravidorr/browser-automation-extension/graphs/commit-activity)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Node.js](https://img.shields.io/badge/Node.js-24-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
+[![ESLint](https://img.shields.io/badge/ESLint-10-4B32C3?logo=eslint&logoColor=white)](https://eslint.org/)
+[![Extension + backend](https://img.shields.io/badge/Stack-Extension%20%2B%20backend-4285F4?logo=googlechrome&logoColor=white)](https://github.com/ravidorr/browser-automation-extension)
+
 A monorepo containing a browser automation extension with a backend service.
 
 ## Prerequisites
